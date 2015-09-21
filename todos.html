@@ -1,0 +1,42 @@
+<head>
+  <title>todos</title>
+</head>
+
+<body>
+  <h1>Welcome to Meteor!</h1>
+  {{>todos}}
+</body>
+
+<template name="addTodos">
+  <form>
+    Create Todo:
+    <input type="text" placeholder="Enter text here..." name="todoName">
+  </form>
+</template>
+
+
+<template name="todoItem">
+  <li class={{checked}}>
+    <input type="checkbox"   {{checked}}>
+    <input type="text" name="todoItem" value="{{name}}">
+    [<a href="#" class="delete-item">Delete</a>]
+  </li>
+</template>
+
+<template name="todos">
+  {{>addTodos}}
+  <ul>
+    {{#each todo}}
+    {{>todoItem}}
+    {{/each}}
+  </ul>
+  {{>todoCount}}
+</template>
+
+<template name="todoCount">
+  {{#if totalTodos}}
+  <p>
+    You have completed {{completedTodos}} out of {{totalTodos}}
+  </p>
+  {{/if}}
+</template>
