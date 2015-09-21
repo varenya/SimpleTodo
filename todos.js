@@ -1,8 +1,43 @@
+Router.configure({
+  layoutTemplate: 'main'
+})
+
+Router.route("/", {
+  name: 'home',
+  template: 'home'
+});
+
+Router.route("/lists/:_id", {
+  name: 'listPage',
+  template: 'listPage',
+  data: function() {
+    var currentList = this.params._id;
+    return Lists.findOne({
+      _id: currentList
+    });
+    //console.log("This is a list page");
+  }
+});
+
+Router.route("/login");
+Router.route("/register");
+
+
+
 Todos = new Meteor.Collection("todos");
+Lists = new Meteor.Collection("lists");
 if (Meteor.isClient) {
   Template.todos.helpers({
     'todo': function() {
-      return Todos.find();
+      //return Todos.find();
+      var currentList = this._id;
+      return Todos.find({
+        listId: currentList
+      }, {
+        sort: {
+          createdAt: -1
+        }
+      });
     }
   });
   Template.addTodos.events({
@@ -11,11 +46,13 @@ if (Meteor.isClient) {
       console.log("inside submit");
       console.log(event);
       var todoName = $('[name="todoName"]').val();
+      var currentList = this._id;
       console.log("todoName " + todoName);
       Todos.insert({
         name: todoName,
         completed: false,
-        createdAt: new Date()
+        createdAt: new Date(),
+        listId: currentList
       });
       $('[name="todoName"]').val('');
 
@@ -34,10 +71,15 @@ if (Meteor.isClient) {
 
   Template.todoCount.helpers({
     'totalTodos': function() {
-      return Todos.find().count();
+      var currentList = this._id;
+      return Todos.find({
+        listId: currentList
+      }).count();
     },
     'completedTodos': function() {
+      var currentList = this._id;
       return Todos.find({
+        listId: currentList,
         completed: true
       }).count();
 
@@ -97,6 +139,30 @@ if (Meteor.isClient) {
       } else {
         return "";
       }
+    }
+  });
+  Template.addLists.events({
+    "submit form": function(event) {
+      event.preventDefault();
+      var listName = $('[name=listName]').val();
+      Lists.insert({
+        name: listName
+      }, function(errors, results) {
+        // body...
+        Router.go('listPage', {
+          _id: results
+        });
+      });
+      $('[name=listName]').val('');
+    }
+  });
+  Template.lists.helpers({
+    'lists': function() {
+      return Lists.find({}, {
+        sort: {
+          name: 1
+        }
+      })
     }
   });
 
