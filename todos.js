@@ -31,7 +31,9 @@ if (Meteor.isClient) {
     'todo': function() {
       //return Todos.find();
       var currentList = this._id;
+      var currentUser = Meteor.userId();
       return Todos.find({
+        createdBy: currentUser,
         listId: currentList
       }, {
         sort: {
@@ -46,12 +48,14 @@ if (Meteor.isClient) {
       console.log("inside submit");
       console.log(event);
       var todoName = $('[name="todoName"]').val();
+      var currentUser = Meteor.userId();
       var currentList = this._id;
       console.log("todoName " + todoName);
       Todos.insert({
         name: todoName,
         completed: false,
         createdAt: new Date(),
+        createdBy: currentUser,
         listId: currentList
       });
       $('[name="todoName"]').val('');
@@ -145,8 +149,10 @@ if (Meteor.isClient) {
     "submit form": function(event) {
       event.preventDefault();
       var listName = $('[name=listName]').val();
+      var currentUser = Meteor.userId();
       Lists.insert({
-        name: listName
+        name: listName,
+        createdBy: currentUser
       }, function(errors, results) {
         // body...
         Router.go('listPage', {
@@ -158,7 +164,10 @@ if (Meteor.isClient) {
   });
   Template.lists.helpers({
     'lists': function() {
-      return Lists.find({}, {
+      var currentUser = Meteor.userId();
+      return Lists.find({
+        createdBy: currentUser
+      }, {
         sort: {
           name: 1
         }
